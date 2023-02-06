@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controllers;
 
+use App\Models\Otp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -34,6 +35,40 @@ class AuthenticateControllerTest extends TestCase
                 trans('validation.numeric', ['attribute' => 'phone number']),
                 trans('validation.digits', ['attribute' => 'phone number', 'digits' => 11]),
             ]
+        ]);
+    }
+
+    public function test_confirm_otp()
+    {
+        $data = Otp::factory()->create()->toArray();
+        $response = $this->postJson(route('otp.confirm'), $data);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', ['phone_number' => $data['phone_number']]);
+
+        $response->assertJson(['message' => 'token created successfully']);
+        $response->assertOk();
+    }
+
+    public function test_validation_request_for_confirm_otp()
+    {
+        $response = $this->postJson(route('otp.confirm'), []);
+        $response->assertJsonValidationErrors([
+            'phone_number' => trans('validation.required', ['attribute' => 'phone number']),
+            'code' => trans('validation.required', ['attribute' => 'code']),
+        ]);
+
+        $data = ['phone_number' => Str::random(5), 'code' => Str::random(5)];
+        $response = $this->postJson(route('otp.confirm'), $data);
+        $response->assertJsonValidationErrors([
+            'phone_number' => [
+                trans('validation.numeric', ['attribute' => 'phone number']),
+                trans('validation.digits', ['attribute' => 'phone number', 'digits' => 11]),
+            ],
+            'code' => [
+                trans('validation.numeric', ['attribute' => 'code']),
+                trans('validation.digits', ['attribute' => 'code', 'digits' => 6]),
+            ],
         ]);
     }
 }

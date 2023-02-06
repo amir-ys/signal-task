@@ -6,3 +6,4 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('login', [AuthenticateController::class, 'requestOtp'])->name('otp.request');
+Route::post('login/confirm', [AuthenticateController::class, 'confirmOtp'])->name('otp.confirm');

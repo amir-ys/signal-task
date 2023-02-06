@@ -16,7 +16,7 @@ class Response
         return static::base(false, $message, null);
     }
 
-    public static function data($message, $data, $status): JsonResponse
+    public static function data($message, $data, $status = true): JsonResponse
     {
         return static::base($status, $message, $data);
     }
