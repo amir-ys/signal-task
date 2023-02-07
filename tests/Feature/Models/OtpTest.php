@@ -21,6 +21,14 @@ class OtpTest extends TestCase
     }
 
 
+    public function test_new_instance_of_class_otp()
+    {
+        $otp = Otp::new();
+
+        $this->assertInstanceOf(Otp::class, $otp);
+    }
+
+
     public function test_is_code_expired_after_expiration_end()
     {
         $expirationPeriod = config('otp.expiration_time');

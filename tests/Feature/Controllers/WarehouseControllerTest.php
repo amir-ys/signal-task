@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Controllers;
 
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class WarehouseControllerTest extends TestCase
@@ -13,6 +15,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_index_method()
     {
+        $this->actingAsUser();
+
         Warehouse::factory()->count(10)->create();
         $this->getJson(route('warehouses.index'))
             ->assertOk();
@@ -20,6 +24,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_show_method()
     {
+        $this->actingAsAdmin();
+
         $warehouse = Warehouse::factory()->create();
         $response = $this->getJson(route('warehouses.show', $warehouse->id))
             ->assertOk();
@@ -29,7 +35,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_store_method()
     {
-        $this->withoutExceptionHandling();
+        $this->actingAsAdmin();
+
         $data = Warehouse::factory()->make()->toArray();
         $response = $this->postJson(route('warehouses.store'), $data)
             ->assertOk();
@@ -43,6 +50,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_update_method()
     {
+        $this->actingAsAdmin();
+
         $warehouse = Warehouse::factory()->create();
         $data = Warehouse::factory()->make()->toArray();
         $response = $this->patchJson(route('warehouses.update', $warehouse->id), $data)
@@ -57,6 +66,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_destroy_method()
     {
+        $this->actingAsAdmin();
+
         $warehouse = Warehouse::factory()->create();
         $response = $this->deleteJson(route('warehouses.destroy', $warehouse->id))
             ->assertOk();
@@ -69,6 +80,7 @@ class WarehouseControllerTest extends TestCase
 
     public function test_validation_request_for_store_warehouse_method()
     {
+        $this->actingAsAdmin();
 
         $response = $this->postJson(route('warehouses.store'), []);
         $response->assertJsonValidationErrors([
@@ -93,6 +105,8 @@ class WarehouseControllerTest extends TestCase
 
     public function test_validation_request_for_update_warehouse_method()
     {
+        $this->actingAsAdmin();
+
         $warehouse = Warehouse::factory()->create();
 
         $response = $this->patchJson(route('warehouses.update', $warehouse->id), []);
@@ -113,6 +127,18 @@ class WarehouseControllerTest extends TestCase
                 trans('validation.numeric', ['attribute' => 'inventory']),
             ],
         ]);
+    }
+
+    public function actingAsUser()
+    {
+       $user = User::factory()->user()->create();
+        Sanctum::actingAs($user  , ['*'] );
+    }
+
+    public function actingAsAdmin()
+    {
+        $user = User::factory()->admin()->create();
+        Sanctum::actingAs($user  , ['*'] );
     }
 
 

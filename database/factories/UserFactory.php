@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -20,9 +21,11 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'phone_number' => '09' . fake()->numerify('#########'),
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
+            'is_admin' => $this->faker->randomElement([User::ROLE_ADMIN , User::ROLE_USER]),
         ];
     }
 
@@ -37,4 +40,19 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function admin(): UserFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => User::ROLE_ADMIN,
+        ]);
+    }
+
+    public function user(): UserFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => User::ROLE_USER,
+        ]);
+    }
 }
+
