@@ -53,7 +53,7 @@ class Otp extends Model
     private function generateCode(bool $withDelete = false)
     {
         if ($withDelete) {
-            $this->where('phone_number', $this->phone_number)->delete();
+            $this->deletePreviousCode();
         }
 
         $randomCode = $this->generateRandomUniqueCode();
@@ -74,6 +74,11 @@ class Otp extends Model
             $this->generateRandomUniqueCode();
         }
         return $randomCode;
+    }
+
+    private function deletePreviousCode(): void
+    {
+        $this->where('phone_number', $this->phone_number)->delete();
     }
 
 }

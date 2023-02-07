@@ -6,9 +6,9 @@ use Illuminate\Http\JsonResponse;
 
 class Response
 {
-    public static function succes($message): JsonResponse
+    public static function succes($message , $data = null): JsonResponse
     {
-        return static::base(true, $message, null);
+        return static::base(true, $message, $data);
     }
 
     public static function error($message): JsonResponse
