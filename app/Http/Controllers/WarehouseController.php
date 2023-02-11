@@ -6,6 +6,7 @@ use App\Http\Requests\WarehouseRequest;
 use App\Http\Resources\WarehouseResource;
 use App\Models\Warehouse;
 use App\Responses\Response;
+use App\Services\WarehouseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -22,31 +23,21 @@ class WarehouseController extends Controller
         return Response::data('success', new WarehouseResource($warehouse));
     }
 
-    public function store(WarehouseRequest $request): JsonResponse
+    public function store(WarehouseRequest $request , WarehouseService $warehouseService): JsonResponse
     {
-        $warehouse = Warehouse::create([
-            'name' => $request->name,
-            'inventory' => $request->inventory,
-            'entry_date' => $request->entry_date,
-        ]);
-
+        $warehouse = $warehouseService->createWarehouse($request->validated());
         return Response::succes('warehouse created successfully', $warehouse);
     }
 
-    public function update(WarehouseRequest $request, Warehouse $warehouse): JsonResponse
+    public function update(WarehouseRequest $request, Warehouse $warehouse , WarehouseService $warehouseService): JsonResponse
     {
-        $warehouse = $warehouse->update([
-            'name' => $request->name,
-            'inventory' => $request->inventory,
-            'entry_date' => $request->entry_date,
-        ]);
-
+        $warehouse = $warehouseService->updateWarehouse($warehouse , $request->validated());
         return Response::succes('warehouse updated successfully', $warehouse);
     }
 
-    public function destroy(Warehouse $warehouse): JsonResponse
+    public function destroy(Warehouse $warehouse , WarehouseService $warehouseService): JsonResponse
     {
-        $warehouse->delete();
+        $warehouse = $warehouseService->deleteWarehouse($warehouse);
         return Response::succes("warehouse with name {$warehouse->name} deleted successfully");
     }
 }
